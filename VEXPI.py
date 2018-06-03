@@ -6,7 +6,7 @@ import serial
 
 win10_port = "COM2"
 pi_port = "/dev/ttyAMA0"
-serialPort = serial.Serial(pi_port, baudrate=115200, timeout=3.0)
+serialPort = serial.Serial(pi_port, baudrate=115200, timeout=0.5)
 
 async_mode = None
 
@@ -23,8 +23,8 @@ def background_thread():
     while True:
         """Collect Data right here"""
         serialRaw = serialPort.readline()
-        serialText = serialRaw.decode("utf-8").split(",")
-        data = serialText.split(",")
+        data = serialRaw.decode("utf-8").split(",")
+        print(data)
         if len(data) == 4:
             output = {}
             for i in range(len(sensors)):
@@ -58,4 +58,4 @@ def epochJS():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, host="0.0.0.0")
