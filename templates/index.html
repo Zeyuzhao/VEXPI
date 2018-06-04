@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Flask-SocketIO Test</title>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function() {
+            sensors = ['temp', 'light','sal','wind'];
+            namespace = '/test';
+
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+
+            socket.on('connect', function() {
+                socket.emit('my_event', {data: 'I\'m connected!'});
+            });
+            socket.on('sensor', function(msg) {
+
+                for (var i in sensors)
+                {
+                    x = sensors[i];
+                    console.log(x);
+                    $("#" + x).text(x + ": " + msg[x]);
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Vex Control</h1>
+    <p>Async mode is: <b>{{ async_mode }}</b></p>
+    <h2>Receive:</h2>
+    <div class = "data_storage">
+        <p id = "temp"></p>
+        <p id = "light"></p>
+        <p id = "sal"></p>
+        <p id = "wind"></p>
+    </div>
+</body>
+</html>

@@ -1,10 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function () {
+            //Temp, light, Salinity, Wind
+            console.log("Test");
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+
+            socket.on('sensor', function (msg) {
+                console.log("hi");
+                for (var property in msg) {
+                    if (msg.hasOwnProperty(property)) {
+                        $("#" + property).text(property + ": " + msg[property]);
+                    }
+                }
+            });
+            socket.on('connect', function() {
+                socket.emit('my_event', {data: 'I\'m connected!'});
+            });
+        });
+
+
+    </script>
+
     <title>VEX PI Interface</title>
 </head>
 <body>
 
+<div id="sensor_data">
+    <p id="Temp"></p>
+    <p id="Light"></p>
+    <p id="Salinity"></p>
+    <p id="Wind"></p>
+</div>
 </body>
 </html>
