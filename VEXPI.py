@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 from threading import Lock
 from flask import Flask, render_template, session, request
-from flask_socketio import SocketIO, emit, join_room, leave_room, \
-    close_room, rooms, disconnect
+from flask_socketio import SocketIO
 import serial
 
-win10_port = "COM1"
+win10_port = "COM2"
 pi_port = "/dev/ttyAMA0"
-port = serial.Serial(pi_port, baudrate=115200, timeout=3.0)
+#port = serial.Serial(win10_port, baudrate=115200, timeout=3.0)
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
 # the best option based on installed packages.
@@ -25,21 +24,18 @@ def background_thread():
     count = 0
     while True:
         """Collect Data right here"""
-        input = port.read()
-        data = input.split(",")
+        serialText = input("Stuff: ")
+        data = serialText.split(",")
         if len(data) == 4:
             output = {}
             for i in range(len(sensors)):
                 output[sensors[i]] = data[i]
             count += 1
-            socketio.sleep(1)
+            print(output)
             socketio.emit('sensor',
                       output,
                       namespace='/test')
-        else:
-            socketio.emit('sensor',
-                          {"temp": 0},
-                      namespace='/test')
+        socketio.sleep(1)
 
 @socketio.on('connect', namespace='/test')
 def test_connect():
@@ -52,6 +48,15 @@ def test_connect():
 @app.route('/')
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
+
+@app.route('/css/epoch.min.css')
+def epochCSS():
+    return render_template('epoch.min.css')
+
+@app.route('/script/epoch.min.js')
+def epochJS():
+    return render_template('epoch.min.js')
+
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
