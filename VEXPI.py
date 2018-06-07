@@ -6,10 +6,8 @@ import serial
 
 win10_port = "COM2"
 pi_port = "/dev/ttyAMA0"
-#port = serial.Serial(win10_port, baudrate=115200, timeout=3.0)
-# Set this variable to "threading", "eventlet" or "gevent" to test the
-# different async modes, or leave it set to None for the application to choose
-# the best option based on installed packages.
+serialPort = serial.Serial(pi_port, baudrate=115200, timeout=3.0)
+
 async_mode = None
 
 app = Flask(__name__)
@@ -24,7 +22,7 @@ def background_thread():
     count = 0
     while True:
         """Collect Data right here"""
-        serialText = input("Stuff: ")
+        serialText = serialPort.readline()
         data = serialText.split(",")
         if len(data) == 4:
             output = {}
@@ -35,7 +33,7 @@ def background_thread():
             socketio.emit('sensor',
                       output,
                       namespace='/test')
-        socketio.sleep(1)
+        socketio.sleep(0.2)
 
 @socketio.on('connect', namespace='/test')
 def test_connect():

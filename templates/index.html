@@ -2,73 +2,119 @@
 <html>
 <head>
     <title>VEX PI Control</title>
-    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
-    <script src="https://fastcdn.org/D3.js/3.5.6/d3.min.js"></script>
-    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+
 
     <script type="text/javascript" charset="utf-8">
+        var sensors = ['temp', 'light', 'sal', 'wind'];
+        var chartArray = [];
+        var sensorArrayHist = [];
+        var timeArray = [0];
+        var maxDataLength = 20;
+
 
         $(document).ready(function () {
-            var sensors = ['temp', 'light', 'sal', 'wind'];
-
             var namespace = '/test';
             var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
-            var chartData = []
-            var dataLength = 20;
 
             for (var i = 0; i < sensors.length; i++) {
-                chartData.push({
-                    type: "line",
-                    dataPoints: [{x: 0, y: 2 * i}, {x: 1, y: 3 * i + 1}],
-                    name: sensors[i],
-                    showInLegend: true,
-                })
-            }
-            var chart = new CanvasJS.Chart("chartContainer", {
-                title: {
-                    text: "Data"
-                },
-                axisY: {
-                    includeZero: false
-                },
-                data: chartData,
-            });
-            chart.render();
-            socket.on('sensor', dataAppend);
-
-            function dataAppend(msg) {
-                for (var i in sensors) {
-                    var sensorData = sensors[i];
-                    $("#" + sensorData).text(sensorData + ": " + msg[sensorData]);
-                    var currentArray = chartData[i]['dataPoints']
-                    console.log("Index: " + currentArray.length)
-                    console.log("Pushed: " + sensorData);
-
-                    currentArray.push({
-                        x: currentArray.length,
-                        y: parseInt(msg[sensorData])
-                    });
-                    if (currentArray.length > dataLength) {
-                        currentArray.shift();
-                        console.log("Shift")
+                sensorArrayHist.push([0]);
+                console.log(sensorArrayHist[0].length);
+                console.log(sensors[i]);
+                console.log(timeArray.length);
+                var ctx = document.getElementById(sensors[i] + "C").getContext('2d');
+                console.log(ctx);
+                var c = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: timeArray,
+                        datasets: [
+                            {
+                                data: sensorArrayHist[i],
+                                label: sensors[i],
+                            }
+                        ]
                     }
-                    chart.render();
-                }
+                });
+                chartArray.push(c);
             }
+            socket.on('sensor', dataAppend);
         });
+
+        function dataAppend(msg) {
+            for (var i = 0; i < sensors.length; i++) {
+                var sensorLabel = sensors[i];
+                var sensorData = msg[sensorLabel];
+                $("#" + sensorLabel).text(sensorLabel + ": " + sensorData);
+                sensorArrayHist[i].push(sensorData);
+                console.log(sensorData);
+            }
+            if (sensorArrayHist[0].length > maxDataLength) {
+                for (var i = 0; i < sensorArrayHist.length; i++) {
+                    sensorArrayHist[i].shift();
+                }
+            } else {
+                timeArray.push(sensorArrayHist[0].length);
+            }
+
+            for (var i = 0; i < chartArray.length; i++) {
+                chartArray[i].update();
+            }
+        }
     </script>
+
+    <style>
+        canvas {
+            margin: auto;
+            padding: 10px;
+        }
+        p {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 <h1>Vex Control</h1>
-<p>Async mode is: <b>{{ async_mode }}</b></p>
+
+<!--<p>Async mode is: <b>{{ async_mode }}</b></p> -->
+
 <h2>Receive:</h2>
 <div class="data_storage">
-    <div id="chartContainer" style="height: 300px; width: 100%;"></div>
-    <p id="temp"></p>
-    <p id="light"></p>
-    <p id="sal"></p>
-    <p id="wind"></p>
+    <div class="row">
+        <div class="col-md-3">
+            <canvas id="tempC" width="400" height="300"></canvas>
+            <p id="temp"></p>
+        </div>
+
+        <div class="col-md-3">
+            <canvas id="lightC" width="400" height="300"></canvas>
+            <p id="light"></p>
+        </div>
+        <div class="col-md-3">
+            <canvas id="salC" width="400" height="300"></canvas>
+            <p id="sal"></p>
+        </div>
+        <div class="col-md-3">
+            <canvas id="windC" width="400" height="300"></canvas>
+            <p id="wind"></p>
+        </div>
+    </div>
+
 </div>
 </body>
 </html>
