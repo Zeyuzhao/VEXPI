@@ -64,6 +64,24 @@
                 chartArray.push(c);
             }
             socket.on('sensor', dataAppend);
+
+            var image = document.getElementById("image");
+
+            function reload_img() {
+                var source = "http://" + document.domain + ":80/" + "cam_pic.php?time=" + new Date().getTime();
+                image.src = source;
+            }
+
+            function error_img() {
+                setTimeout(reload_img(), 100);
+            }
+
+            function start() {
+                image.onload = reload_img;
+                image.onerror = error_img;
+                reload_img();
+            }
+            setTimeout('start();', 100);
         });
 
         function dataAppend(msg) {
@@ -106,6 +124,11 @@
 
 <!--<p>Async mode is: <b>{{ async_mode }}</b></p> -->
 <div class="data_storage">
+    <div class="row">
+        <div class="col-md-6">
+            <img class = "box" id = "image">
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-3">
             <canvas id="tempC" width="400" height="300"></canvas>
