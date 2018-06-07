@@ -21,34 +21,44 @@
 
 
     <script type="text/javascript" charset="utf-8">
+        //List of sensor name labels
         var sensors = ['temp', 'light', 'sal', 'wind'];
+        //Stores the instances of the chart object
         var chartArray = [];
+        //Stores the temporary data for each chart, corresponding to sensors labels
         var sensorArrayHist = [];
+        //Stores the indices of the chart, the x axis
         var timeArray = [0];
+        //The maximum number of data points displayed on the graph
         var maxDataLength = 20;
 
 
         $(document).ready(function () {
+            //The URL for Socket IO
             var namespace = '/test';
             var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
-
+            //Prep each chart with the corresponding sensor
             for (var i = 0; i < sensors.length; i++) {
                 sensorArrayHist.push([0]);
-                console.log(sensorArrayHist[0].length);
-                console.log(sensors[i]);
-                console.log(timeArray.length);
+                //Select the corresponding canvas element
                 var ctx = document.getElementById(sensors[i] + "C").getContext('2d');
-                console.log(ctx);
+
                 var c = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: timeArray,
                         datasets: [
                             {
-                                data: sensorArrayHist[i],
-                                label: sensors[i],
+                                data: sensorArrayHist[i], //The data for each graph
+                                label: sensors[i], //The name of the data set
                             }
                         ]
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            text: sensors[i],
+                        }
                     }
                 });
                 chartArray.push(c);
@@ -64,14 +74,16 @@
                 sensorArrayHist[i].push(sensorData);
                 console.log(sensorData);
             }
+            timeArray.push(sensorArrayHist[0].length);
+
+            //Checks if the amount of data points exceeds max point count
             if (sensorArrayHist[0].length > maxDataLength) {
                 for (var i = 0; i < sensorArrayHist.length; i++) {
                     sensorArrayHist[i].shift();
                 }
-            } else {
-                timeArray.push(sensorArrayHist[0].length);
+                timeArray.shift();
             }
-
+            //Update each graph with new data
             for (var i = 0; i < chartArray.length; i++) {
                 chartArray[i].update();
             }
@@ -83,6 +95,7 @@
             margin: auto;
             padding: 10px;
         }
+
         p {
             text-align: center;
         }
@@ -92,8 +105,6 @@
 <h1>Vex Control</h1>
 
 <!--<p>Async mode is: <b>{{ async_mode }}</b></p> -->
-
-<h2>Receive:</h2>
 <div class="data_storage">
     <div class="row">
         <div class="col-md-3">
