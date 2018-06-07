@@ -64,6 +64,7 @@
                 chartArray.push(c);
             }
             socket.on('sensor', dataAppend);
+            setTimeout('start();', 100);
         });
 
         var image = document.getElementById("image");
@@ -82,8 +83,6 @@
             image.onerror = error_img;
             reload_img();
         }
-
-        setTimeout('start();', 100);
 
         function dataAppend(msg) {
             for (var i = 0; i < sensors.length; i++) {
