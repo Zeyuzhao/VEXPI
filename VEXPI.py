@@ -22,7 +22,8 @@ def background_thread():
     count = 0
     while True:
         """Collect Data right here"""
-        serialText = serialPort.readline()
+        serialRaw = serialPort.readline()
+        serialText = serialRaw.decode("utf-8").split(",")
         data = serialText.split(",")
         if len(data) == 4:
             output = {}
