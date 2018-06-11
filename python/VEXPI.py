@@ -25,6 +25,7 @@ def background_thread():
         serialRaw = serialPort.readline()
         data = serialRaw.decode("utf-8").split(",")
         print(data)
+
         if len(data) == 4:
             output = {}
             for i in range(len(sensors)):
