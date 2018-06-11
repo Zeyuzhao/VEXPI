@@ -142,7 +142,7 @@
         for (var i = 0; i < sensors.length; i++) {
             var sensorLabel = sensors[i];
             var sensorData = msg[sensorLabel];
-            if (sensorData !== -1) {
+            if (parseInt(sensorData) !== -1) {
                 $("#" + sensorLabel).text(sensorLabel + ": " + sensorData);
                 sensorArrayHist[i].push(sensorData);
                 sensorTotalHist[i].push(sensorData);
