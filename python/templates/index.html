@@ -147,7 +147,7 @@
                 sensorArrayHist[i].push(sensorData);
                 sensorTotalHist[i].push(sensorData);
                 console.log(sensorData);
-                multiTimeArray[i].push(sensorTotalHist.length);
+                multiTimeArray[i].push(sensorTotalHist[i].length);
                 //Checks if the amount of data points exceeds max point count
                 if (sensorArrayHist[i].length > maxDataLength) {
                     sensorArrayHist[i].shift();
