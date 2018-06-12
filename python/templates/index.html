@@ -143,6 +143,12 @@
             var sensorLabel = sensors[i];
             var sensorData = msg[sensorLabel];
             if (parseInt(sensorData) !== -1) {
+
+                if (i === 0) //TEMP CASE
+                {
+                    //Process Temp data into C degrees
+                    sensorData = Math.floor(0.125156 * (841.2 - sensorData));
+                }
                 $("#" + sensorLabel).text(sensorLabel + ": " + sensorData);
                 sensorArrayHist[i].push(sensorData);
                 sensorTotalHist[i].push(sensorData);

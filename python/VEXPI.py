@@ -29,7 +29,8 @@ def background_thread():
         if len(data) == 4:
             output = {}
             for i in range(len(sensors)):
-                output[sensors[i]] = data[i]
+                cData = data[i]
+                output[sensors[i]] = cData
             count += 1
             print(output)
             socketio.emit('sensor',
